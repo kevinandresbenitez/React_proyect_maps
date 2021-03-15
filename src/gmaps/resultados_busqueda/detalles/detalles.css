@@ -1,0 +1,33 @@
+.Cont_prin_detalles{
+    height: 600px;
+    overflow-y: scroll;
+}
+.Cont_detalles_imagenes{
+    display: flex;
+    flex-flow: row wrap;
+    margin: auto;
+
+    justify-content: center;
+    align-items: center;
+
+    padding: 5px;
+    overflow: hidden;
+
+}
+.img_detalles{
+    overflow: hidden;
+
+    margin: 3px;
+
+    border: 2px solid black;
+
+    width: 150px;
+    height: 150px;
+
+}
+
+.Cont_detalles_horarios{
+    text-align: left;
+    display: flex;
+    flex-flow: row wrap;
+}
