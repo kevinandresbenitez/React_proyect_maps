@@ -27,7 +27,7 @@ class App extends Component {
 
   }
 
- 
+
 
   Buscar=()=>{
     var busqueda=document.getElementById("Buscador").value;
@@ -35,11 +35,11 @@ class App extends Component {
     var peticion={
       query:busqueda,
       fields:['formatted_address','opening_hours',
-      'icon', 'id', 'name','photo', 'place_id', 'plus_code', 
+      'icon', 'id', 'name','photo', 'place_id', 'plus_code',
       'type','geometry','rating']
     }
 
-    this.service = new window.google.maps.places.PlacesService(map); 
+    this.service = new window.google.maps.places.PlacesService(map);
     this.service.findPlaceFromQuery(peticion,this.ProcesarBusqueda);
 
   }
@@ -99,7 +99,7 @@ class App extends Component {
 
   }
   AgregarMarcador=(lugares)=>{
-    
+
     lugares.map((Archivos,indice)=>{
         return new window.google.maps.Marker({position: Archivos.geometry.location, map: map});
     })
@@ -120,7 +120,6 @@ class App extends Component {
     }
       this.service.getDetails(detalles,this.PocesarDetalles)
   }
-
   PocesarDetalles=(detalles)=>{
 
       this.setState({
@@ -138,7 +137,7 @@ class App extends Component {
     }
   }
 
-  render() { 
+  render() {
 
     return (
             <div className='container_app'>
@@ -156,10 +155,10 @@ class App extends Component {
               </div>
 
 
-                    {this.state.busqueda.map((archivos,indice)=>{
-                      return (<Resultados key={indice} indice={indice} cambiarPosicion={this.CambiarPosicionMapa} Detalles={this.state.detalles} DetallesFuncion={this.Detalles}>{archivos}</Resultados>)
-                      })
-                    }
+                {this.state.busqueda.map((archivos,indice)=>{
+                  return (<Resultados key={indice} indice={indice} cambiarPosicion={this.CambiarPosicionMapa} Detalles={this.state.detalles} DetallesFuncion={this.Detalles}>{archivos}</Resultados>)
+                  })
+                }
 
 
 
@@ -169,5 +168,5 @@ class App extends Component {
     );
   }
 }
- 
+
 export default App;

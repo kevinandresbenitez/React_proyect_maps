@@ -1,7 +1,7 @@
 .container_resultados{
     width: 100%;
     margin:30px auto;
-  
+
     display: flex;
     flex-flow: row nowrap;
     padding: 20px ;
@@ -9,13 +9,16 @@
 
 .resultado_item{
     width: 50%;
+    max-width: 580px;
+
+    min-width: 400px;
     min-height: 600px;
 
     margin:auto;
-    padding: 20px 0px;
+    padding: 20px 5px;
 
-
-    background-color: rgb(220, 231, 233);
+    background: rgb(238,174,202);
+    background: radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%);
     overflow: hidden;
 }
 
@@ -25,34 +28,35 @@
 
 .resultado_item >img{
     max-width: 300px;
-    max-height: 300px;
+    max-height: 250px;
+
 }
 
 .resultado_item button[class^='button']{
-    margin:auto 1px;
+    margin:2px ;
 
     display: inline-block;
-
-    background-color: rgb(92, 92, 172);
+    background-color: rgb(93, 93, 138);
     border: none;
     color: white;
     padding: 5px 20px;
 }
-.resultado_item button[class^='button']{
-    background-color: rgb(93, 93, 138);
-}
 
 
 .tipo_local{
-    margin: auto;
-    padding: 10%;
+    padding: 5% 10% ;
+    display: flex;
+    flex-flow: column wrap;
     text-align: start;
+}
+.tipo_local p{
+  margin:0px;
 }
 
 
 .resultado_detalles{
     width: 96%;
-    padding: 20px 0px;
+    padding: 20px 5px;
 
     display: none;
 
@@ -61,7 +65,7 @@
     animation-duration: 1s;
 }
 
-@media (max-width:800px){
+@media (max-width:900px){
     .container_resultados{
         padding: 10px;
         flex-flow: column nowrap;
@@ -69,12 +73,18 @@
 
     .resultado_item{
         width: 96%;
+        min-width: auto;
         min-height: 300px;
 
     }
     .resultado_detalles{
         margin: auto ;
+        height: auto;
+        max-width: 580px;
         width: 96%;
+    }
+    .tipo_local{
+      padding: 5%;
     }
 
 
@@ -82,7 +92,7 @@
 }
 
 @keyframes aparece{
-    from{ 
+    from{
         width: 0%;
     }
     to{

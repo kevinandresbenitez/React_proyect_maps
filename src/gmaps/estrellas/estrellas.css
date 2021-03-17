@@ -1,0 +1,16 @@
+.stars {
+
+
+    display: flex;
+    flex-flow:row nowrap;
+    margin: auto 3px;
+}
+
+
+.stars > div{
+
+
+    display: flex;
+    flex-flow:row nowrap;
+    margin: auto 3px;
+}

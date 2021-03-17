@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import Detalles from './detalles/detalles'
+
 import './resultados.css'
+
+import Estrellas from '../estrellas/estrellas.js'
 
 class Resultados extends Component {
     constructor(props) {
@@ -39,26 +42,26 @@ class Resultados extends Component {
 
 
 
-    render() { 
-        
+    render() {
+
 
         return (
             <div className='container_resultados'>
 
-                <div className='resultado_item'> 
+                <div className='resultado_item'>
                         <h2>{this.state.archivo.nombre}</h2>
 
-                        {!this.state.archivo.imagenes ? <p><strong>No hay imagenes disponibles</strong></p>: 
-                            <img style={{maxHeight:'250px'}} alt={this.state.archivo.nombre} src={this.state.archivo.imagenes[0].getUrl()} />
+                        {!this.state.archivo.imagenes ? <p><strong>No hay imagenes disponibles</strong></p>:
+                            <img  alt={this.state.archivo.nombre} src={this.state.archivo.imagenes[0].getUrl()} />
                         }
 
                         {!this.state.archivo.direccion ? <p>Ubicacion no disponible</p>: <p>{this.state.archivo.direccion}</p> }
 
                         <div className='tipo_local'>
-                            {!this.state.archivo.rating ? undefined:  <ul><h3>Rating:</h3>{this.state.archivo.rating} </ul> }
-                            <ul>
-                                <h3>Tipo de establecimiento:</h3>{!this.state.archivo.tipo ? 'No definido':this.state.archivo.tipo.map((tipo_lugar)=>{return <li key={tipo_lugar}>{tipo_lugar}</li> }) }
-                            </ul>
+                            {!this.state.archivo.rating ? null: <Estrellas rating={this.state.archivo.rating} />}
+
+                                <h3>Tipo de establecimiento:</h3>{!this.state.archivo.tipo ? 'No definido':this.state.archivo.tipo.map((tipo_lugar)=>{return <p key={tipo_lugar}>{tipo_lugar}</p> }) }
+
                         </div>
 
 
@@ -68,7 +71,7 @@ class Resultados extends Component {
 
                 </div>
 
-                <div className='resultado_detalles'> 
+                <div className='resultado_detalles'>
 
                         {this.state.detalles ? 'No hay detalles': <Detalles  Detalles={this.props.Detalles} />}
 
@@ -77,9 +80,9 @@ class Resultados extends Component {
 
 
             </div>
-            
+
         );
     }
 }
- 
+
 export default Resultados;

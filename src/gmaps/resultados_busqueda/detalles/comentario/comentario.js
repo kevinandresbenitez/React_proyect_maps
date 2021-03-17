@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import Estrellas from '../../../estrellas/estrellas'
+
+
 import './comentario.css'
 
 class Comentario extends Component {
@@ -18,7 +21,7 @@ class Comentario extends Component {
                             </div>
 
                             <div>
-                                <strong>Rating:{this.props.Comentario.rating}</strong> 
+                                {<Estrellas rating={this.props.Comentario.rating} />}
                             </div>
 
                         </div>
