@@ -128,14 +128,13 @@ class Resultados extends Component {
 
                 </div>
 
-                <div className='resultado_detalles'>
-                        {this.state.detalles ?  <Detalles  Detalles={this.props.Detalles}/>:'No hay detalles' }
-                </div>
+                    <div className='resultado_detalles'>
+                            {this.state.detalles ?  <Detalles  Detalles={this.props.Detalles}/>:'No hay detalles' }
+                    </div>
 
-                <div className='lugares_cercanos'>
-                        {this.state.lugares_cercanos ?  <LugaresCercanos Buscar={this.props.Buscar} Lugares={this.props.Lugares} />:'No hay lugares_cercanos' }
-                </div>
-
+                    <div className='lugares_cercanos'>
+                            {this.state.lugares_cercanos ?  <LugaresCercanos Buscar={this.props.Buscar} Lugares={this.props.Lugares} />:'No hay lugares_cercanos' }
+                    </div>
 
 
             </div>

@@ -57,6 +57,7 @@
 
 
 .resultado_detalles{
+
     width: 96%;
     padding: 20px 5px;
     display: none;
@@ -71,10 +72,29 @@
   animation-duration: 1s;
 }
 
+
+@keyframes aparece{
+    from{
+        width: 0%;
+    }
+    to{
+        width: 96%;
+    }
+}
+
+@keyframes desaparece{
+    from{
+        width: 96%;
+    }
+    to{
+        width: 0%;
+    }
+}
+
 @media (max-width:900px){
     .container_resultados{
         padding: 10px;
-        flex-flow: column nowrap;
+        flex-flow: column wrap;
       }
 
     .resultado_item{
@@ -100,23 +120,4 @@
     }
 
 
-
-}
-
-@keyframes aparece{
-    from{
-        width: 0%;
-    }
-    to{
-        width: 96%;
-    }
-}
-
-@keyframes desaparece{
-    from{
-        width: 96%;
-    }
-    to{
-        width: 0%;
-    }
 }

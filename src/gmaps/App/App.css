@@ -70,8 +70,6 @@ ul {
 
 }
 
-
-
 #buscador button{
   padding: 7px 35px;
 
@@ -83,8 +81,14 @@ ul {
 #buscador button:hover{
   background-color: rgb(167, 204, 131);
 }
-
-
+#opciones{
+  padding: 5px 30px;
+  border-radius: 0px;
+  border: 0.5px solid rgb(156, 212, 99);
+}
+#opciones:hover{
+  background-color: rgb(167, 204, 131);
+}
 
 @media (max-width:900px){
   .container_app{

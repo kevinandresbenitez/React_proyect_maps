@@ -21,14 +21,14 @@ class App extends Component {
         clearInterval(intervalgoogle)
         var posicion_inicial= new window.google.maps.LatLng(-34.6083, -58.3712);
         map= new window.google.maps.Map(document.getElementById("map"),{center:posicion_inicial,zoom:15})
+        this.directionsService = new window.google.maps.DirectionsService();
+        this.directionsRender = new window.google.maps.DirectionsRenderer();
       }
 
     },200)
 
 
   }
-
-
 
   Buscar=(busqueda)=>{
 
@@ -44,6 +44,8 @@ class App extends Component {
 
   }
   ProcesarBusqueda=(place,status)=>{
+
+
     this.place=place;
     this.setState({
       busqueda:[],
@@ -57,6 +59,35 @@ class App extends Component {
     this.setState({busqueda:place});
   }
 
+  CalcularViaje=(manera,evento)=>{
+    this.directionsRender.setMap(map)
+    navigator.geolocation.getCurrentPosition((pos)=>{
+      var ltn=pos.coords.latitude ;
+      var lng=pos.coords.longitude ;
+        this.start={lat:ltn,lng:lng}
+
+      return true
+      })
+
+      var pedido=setInterval(()=>{
+        const request = {
+            origin: this.start,
+            destination:{lat:this.place[0].geometry.location.lat(),lng:this.place[0].geometry.location.lng()},
+            travelMode:manera
+        }
+        this.directionsService.route(request, (result, status) => {
+            if(status === "OK"){
+                clearInterval(pedido)
+                this.directionsRender.setDirections(result)
+            }
+        })
+      },200)
+
+
+
+
+  }
+
   BuscarLugaresCercanos=(posicion)=>{
     this.setState({
       lugares_cercanos:[]
@@ -68,7 +99,6 @@ class App extends Component {
     };
     this.service.nearbySearch(request,this.ProcesarLugaresCercanos)
   }
-
   ProcesarLugaresCercanos=(place,status)=>{
 
     this.setState({
@@ -137,7 +167,24 @@ class App extends Component {
                     <input type="text" placeholder='Buscar ...' id='Buscador' onKeyDown={(evento)=>{
                       var busqueda=document.getElementById("Buscador").value;this.TeclaEnter(evento,busqueda)}} />
                     <button onClick={()=>{var busqueda=document.getElementById("Buscador").value;this.Buscar(busqueda)}} >Buscar</button>
+
+                    {this.state.busqueda && !this.state.busqueda.length > 0 ? null:
+                    <div>
+                      <h2>Calcular Destino</h2>
+                      <p>{this.place[0].name}</p>
+                      <select id='opciones'>
+                        <option value='DRIVING'>Conduciendo</option>
+                        <option value="WALKING">Caminando</option>
+                        <option value="BICYCLING">Bicicleta</option>
+                        <option value="TRANSIT">Trancito</option>
+                      </select >
+
+                      <button onClick={()=>{this.CalcularViaje(document.getElementById('opciones').value)}}>ir a</button>
+                    </div>
+                    }
+
                   </div>
+
 
               </div>
 
