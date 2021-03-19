@@ -121,8 +121,9 @@ class Estrellas extends Component {
 
 
 
-
                 </div>
+                <h3> {this.props.rating} </h3>
+
             </div>
 
         );

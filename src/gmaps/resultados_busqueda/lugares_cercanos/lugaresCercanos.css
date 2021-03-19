@@ -1,0 +1,29 @@
+.Cont_prin_Lugares_cercanos{
+    height: 600px;
+    overflow-y: scroll;
+
+}
+.lugares_item{
+  margin-bottom: 30px;
+}
+.lugares_item > div{
+  margin:auto;
+  width: 250px
+}
+.lugares_item > div button{
+    padding: 5px 25px;
+    background-color: #9d71ff;
+    border: none;
+    box-shadow: none
+}
+.lugares_item > div button:hover{
+  background-color: #a982ff;
+}
+
+
+.lugares_item img{
+  margin: 3px;
+
+  width: 250px;
+  height: 200px;
+}

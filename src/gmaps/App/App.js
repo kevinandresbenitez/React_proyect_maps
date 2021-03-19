@@ -9,7 +9,8 @@ class App extends Component {
     super(props);
     this.state = {
       busqueda:[],
-      detalles:[]
+      detalles:[],
+      lugares_cercanos:[]
     }
   }
 
@@ -29,8 +30,7 @@ class App extends Component {
 
 
 
-  Buscar=()=>{
-    var busqueda=document.getElementById("Buscador").value;
+  Buscar=(busqueda)=>{
 
     var peticion={
       query:busqueda,
@@ -44,51 +44,37 @@ class App extends Component {
 
   }
   ProcesarBusqueda=(place,status)=>{
-
     this.place=place;
-
     this.setState({
       busqueda:[],
     })
 
-    var info_sitios=[];
-
     if(status === 'OK'){
-
       this.CambiarPosicionMapa(place[0].geometry.location)
       this.AgregarMarcador(this.place)
-
-
-      place.map((archivo,indice)=>{
-
-        var sitio={
-          place_id:archivo.place_id,
-          nombre:archivo.name,
-          direccion:archivo.formatted_address,
-          rating:undefined,
-          imagenes:undefined,
-          tipo:undefined,
-          posicion_geografica:archivo.geometry.location
-        };
-
-        if(archivo.rating){
-          sitio.rating= archivo.rating;
-        }
-        if(archivo.photos){
-          sitio.imagenes=archivo.photos;
-        }
-        if(archivo.types){
-          sitio.tipo=archivo.types;
-        }
-
-        info_sitios.push(sitio);
-
-        return sitio
-      })
-
     }
 
-    this.setState({busqueda:info_sitios});
+    this.setState({busqueda:place});
+  }
+
+  BuscarLugaresCercanos=(posicion)=>{
+    this.setState({
+      lugares_cercanos:[]
+    })
+
+    var request = {
+      location: posicion,
+      radius: 5000,
+    };
+    this.service.nearbySearch(request,this.ProcesarLugaresCercanos)
+  }
+
+  ProcesarLugaresCercanos=(place,status)=>{
+
+    this.setState({
+      lugares_cercanos:place
+    })
+
   }
 
 
@@ -131,9 +117,9 @@ class App extends Component {
 
 
 
-  TeclaEnter=(evento)=>{
+  TeclaEnter=(evento,busqueda)=>{
     if(evento.key === 'Enter'){
-      this.Buscar()
+      this.Buscar(busqueda)
     }
   }
 
@@ -148,15 +134,16 @@ class App extends Component {
 
                   <div id="buscador">
                     <h1>Buscar sitio</h1>
-                    <input type="text" placeholder='Buscar ...' id='Buscador' onKeyDown={this.TeclaEnter} />
-                    <button onClick={this.Buscar} >Buscar</button>
+                    <input type="text" placeholder='Buscar ...' id='Buscador' onKeyDown={(evento)=>{
+                      var busqueda=document.getElementById("Buscador").value;this.TeclaEnter(evento,busqueda)}} />
+                    <button onClick={()=>{var busqueda=document.getElementById("Buscador").value;this.Buscar(busqueda)}} >Buscar</button>
                   </div>
 
               </div>
 
 
                 {this.state.busqueda.map((archivos,indice)=>{
-                  return (<Resultados key={indice} indice={indice} cambiarPosicion={this.CambiarPosicionMapa} Detalles={this.state.detalles} DetallesFuncion={this.Detalles}>{archivos}</Resultados>)
+                  return (<Resultados key={indice} Buscar={this.Buscar} indice={indice} Lugares={this.state.lugares_cercanos} LugaresFuncion={this.BuscarLugaresCercanos} cambiarPosicion={this.CambiarPosicionMapa} Detalles={this.state.detalles} DetallesFuncion={this.Detalles}>{archivos}</Resultados>)
                   })
                 }
 

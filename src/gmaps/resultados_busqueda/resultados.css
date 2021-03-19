@@ -17,8 +17,10 @@
     margin:auto;
     padding: 20px 5px;
 
-    background: rgb(238,174,202);
-    background: radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%);
+
+    background: #d7d5cd;
+
+
     overflow: hidden;
 }
 
@@ -57,12 +59,16 @@
 .resultado_detalles{
     width: 96%;
     padding: 20px 5px;
-
     display: none;
-
-    background-color: rgb(75, 218, 75);
-
+    background: #54c435;
     animation-duration: 1s;
+}
+.lugares_cercanos{
+  width: 96%;
+  padding: 20px 5px;
+  display: none;
+  background: #54c435;
+  animation-duration: 1s;
 }
 
 @media (max-width:900px){
@@ -83,6 +89,12 @@
         max-width: 580px;
         width: 96%;
     }
+    .lugares_cercanos{
+      margin: auto ;
+      height: auto;
+      max-width: 580px;
+      width: 96%;
+    }
     .tipo_local{
       padding: 5%;
     }
@@ -97,5 +109,14 @@
     }
     to{
         width: 96%;
+    }
+}
+
+@keyframes desaparece{
+    from{
+        width: 96%;
+    }
+    to{
+        width: 0%;
     }
 }
