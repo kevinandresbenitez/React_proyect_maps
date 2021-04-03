@@ -32,6 +32,10 @@ class App extends Component {
 
   Buscar=(busqueda)=>{
 
+    if(!busqueda){
+      return false
+    }
+
     var peticion={
       query:busqueda,
       fields:['formatted_address','opening_hours',

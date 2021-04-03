@@ -1,11 +1,22 @@
+
+.stars_cont_rating{
+    display: flex;
+    flex-flow: row wrap;
+    margin: 0px;
+}
+
+
+
+.stars_cont {
+    display: flex;
+    flex-flow: row nowrap;
+}
+
 .stars {
-
-
     display: flex;
     flex-flow:row nowrap;
     margin: auto 3px;
 }
-
 
 .stars > div{
 
