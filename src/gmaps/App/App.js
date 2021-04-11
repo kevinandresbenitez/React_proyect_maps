@@ -42,7 +42,7 @@ class App extends Component {
       'icon', 'id', 'name','photo', 'place_id', 'plus_code',
       'type','geometry','rating']
     }
-
+    console.log(busqueda)
     this.service = new window.google.maps.places.PlacesService(map);
     this.service.findPlaceFromQuery(peticion,this.ProcesarBusqueda);
 
