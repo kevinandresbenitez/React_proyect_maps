@@ -89,7 +89,9 @@ ul {
 #opciones:hover{
   background-color: rgb(167, 204, 131);
 }
-
+.Calculo_distancia{
+  margin: 5px;
+}
 @media (max-width:900px){
   .container_app{
     margin-top: 0px;

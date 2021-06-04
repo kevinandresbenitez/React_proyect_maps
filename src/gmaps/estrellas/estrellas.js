@@ -11,7 +11,7 @@ class Estrellas extends Component {
 
         return (
                 <div className="stars_cont_rating"  id="star">
-                    <h3>Rating</h3>
+                    <h3>Rating:</h3>
                    
 
                 <div className="stars_cont">
@@ -122,7 +122,7 @@ class Estrellas extends Component {
 
 
 
-                    <h3> {this.props.rating} </h3>
+                <strong style={{margin:"2px"}}> {this.props.rating} </strong>
 
                 </div>
 

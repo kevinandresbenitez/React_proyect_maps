@@ -42,7 +42,6 @@ class App extends Component {
       'icon', 'id', 'name','photo', 'place_id', 'plus_code',
       'type','geometry','rating']
     }
-    console.log(busqueda)
     this.service = new window.google.maps.places.PlacesService(map);
     this.service.findPlaceFromQuery(peticion,this.ProcesarBusqueda);
 
@@ -60,7 +59,10 @@ class App extends Component {
       this.AgregarMarcador(this.place)
     }
 
-    this.setState({busqueda:place});
+    this.setState({
+      busqueda:place,
+      Calculo:false
+    });
   }
 
   CalcularViaje=(manera,evento)=>{
@@ -79,10 +81,15 @@ class App extends Component {
             destination:{lat:this.place[0].geometry.location.lat(),lng:this.place[0].geometry.location.lng()},
             travelMode:manera
         }
+
         this.directionsService.route(request, (result, status) => {
             if(status === "OK"){
-                clearInterval(pedido)
-                this.directionsRender.setDirections(result)
+              this.directionsRender.setDirections(result);
+              this.setState({Calculo:result});
+              clearInterval(pedido);
+            }else if(status === "ZERO_RESULTS"){
+              clearInterval(pedido);
+              this.setState({Calculo:0});
             }
         })
       },200)
@@ -102,6 +109,7 @@ class App extends Component {
       radius: 5000,
     };
     this.service.nearbySearch(request,this.ProcesarLugaresCercanos)
+
   }
   ProcesarLugaresCercanos=(place,status)=>{
 
@@ -141,12 +149,9 @@ class App extends Component {
       this.service.getDetails(detalles,this.PocesarDetalles)
   }
   PocesarDetalles=(detalles)=>{
-
-      this.setState({
-        detalles:detalles,
+     this.setState({
+        detalles:[detalles],
       })
-
-
   }
 
 
@@ -186,6 +191,27 @@ class App extends Component {
                       <button onClick={()=>{this.CalcularViaje(document.getElementById('opciones').value)}}>ir a</button>
                     </div>
                     }
+
+                    {!this.state.Calculo ? null:
+                      <div className='Calculo_distancia'>
+                        <h3>Resultados :</h3>
+                        <p><strong>Distancia : </strong>{this.state.Calculo.routes[0].legs[0].distance.text}</p> 
+                        <p><strong>Duracion estimada : </strong>{this.state.Calculo.routes[0].legs[0].duration.text}</p>
+
+                        <p><strong>Distancia inicial : </strong>{this.state.Calculo.routes[0].legs[0].start_address}</p>
+                        <p><strong>Distancia final : </strong>{this.state.Calculo.routes[0].legs[0].end_address}</p>                                                                   
+                      </div>
+                    }
+
+                    {this.state.Calculo !== 0 ? null:                    
+                      <div className='Calculo_distancia'>
+                        <h3>Resultados :</h3>
+                        <strong>No se a podido calcular</strong>
+                      </div>
+
+                    }
+
+
 
                   </div>
 

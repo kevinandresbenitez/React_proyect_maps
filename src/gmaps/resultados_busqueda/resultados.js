@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import Detalles from './detalles/detalles'
-import LugaresCercanos from './lugares_cercanos/lugaresCercanos'
+import Detalles from './detalles/detalles';
+import LugaresCercanos from './lugares_cercanos/lugaresCercanos';
+import Estrellas from '../estrellas/estrellas.js';
 import './resultados.css'
+import ImgNotFound from './img/image-not-found-min.jpg';
 
-import Estrellas from '../estrellas/estrellas.js'
 
 class Resultados extends Component {
     constructor(props) {
@@ -96,7 +97,8 @@ class Resultados extends Component {
                 <div className='resultado_item'>
                         <h2>{this.state.archivo.name}</h2>
 
-                        {!this.state.archivo.photos ? <p><strong>No hay imagenes disponibles</strong></p>:
+                        {!this.state.archivo.photos ? 
+                            <img  alt='Imagen no encontrada'src={ImgNotFound} />:
                             <img  alt={this.state.archivo.name} src={this.state.archivo.photos[0].getUrl()} />
                         }
 
@@ -129,11 +131,11 @@ class Resultados extends Component {
                 </div>
 
                     <div className='resultado_detalles'>
-                            {this.state.detalles ?  <Detalles  Detalles={this.props.Detalles}/>:'No hay detalles' }
+                            {this.state.detalles ?  <Detalles  Detalles={this.props.Detalles}/>:false }
                     </div>
 
                     <div className='lugares_cercanos'>
-                            {this.state.lugares_cercanos ?  <LugaresCercanos Buscar={this.props.Buscar} Lugares={this.props.Lugares} />:'No hay lugares_cercanos' }
+                            {this.state.lugares_cercanos ?  <LugaresCercanos Buscar={this.props.Buscar} Lugares={this.props.Lugares} />:false}
                     </div>
 
 
