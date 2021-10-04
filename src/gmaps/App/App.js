@@ -2,29 +2,29 @@ import React,{Component} from 'react';
 import Resultados from '../resultados_busqueda/resultados'
 import './App.css'
 
-var map=undefined;
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      busqueda:[],
-      detalles:[],
-      lugares_cercanos:[]
+      busqueda:false,
+      detalles:false,
+      lugares_cercanos:false
     }
   }
 
   componentDidMount(){
-    var intervalgoogle = setInterval(()=>{
 
+    /*init google services*/
+    var intervalgoogle = setInterval(()=>{
       if(window.google){
         clearInterval(intervalgoogle)
         var posicion_inicial= new window.google.maps.LatLng(-34.6083, -58.3712);
-        map= new window.google.maps.Map(document.getElementById("map"),{center:posicion_inicial,zoom:15})
+        this.map= new window.google.maps.Map(document.getElementById("map"),{center:posicion_inicial,zoom:15})
         this.directionsService = new window.google.maps.DirectionsService();
         this.directionsRender = new window.google.maps.DirectionsRenderer();
+        this.service = new window.google.maps.places.PlacesService(this.map);
       }
-
     },200)
 
 
@@ -35,125 +35,131 @@ class App extends Component {
     if(!busqueda){
       return false
     }
+    /*Reset Busqueda*/
+    this.setState({
+      busqueda:[],
+      Calculo:false
+    });
 
+    
+    /*request query*/
     var peticion={
       query:busqueda,
       fields:['formatted_address','opening_hours',
       'icon', 'id', 'name','photo', 'place_id', 'plus_code',
       'type','geometry','rating']
     }
-    this.service = new window.google.maps.places.PlacesService(map);
-    this.service.findPlaceFromQuery(peticion,this.ProcesarBusqueda);
 
-  }
-  ProcesarBusqueda=(place,status)=>{
-
-
-    this.place=place;
-    this.setState({
-      busqueda:[],
-    })
-
-    if(status === 'OK'){
-      this.CambiarPosicionMapa(place[0].geometry.location)
-      this.AgregarMarcador(this.place)
-    }
-
-    this.setState({
-      busqueda:place,
-      Calculo:false
+    /*Search function */
+    this.service.findPlaceFromQuery(peticion,(place,status)=>{
+      if(status === 'OK'){
+        this.CambiarPosicionMapa(place[0].geometry.location)
+        this.AgregarMarcador(place)
+        this.setState({
+          busqueda:place || false,
+          Calculo:false
+        });        
+      }
+      
     });
+    
   }
-
-  CalcularViaje=(manera,evento)=>{
-    this.directionsRender.setMap(map)
-    navigator.geolocation.getCurrentPosition((pos)=>{
-      var ltn=pos.coords.latitude ;
-      var lng=pos.coords.longitude ;
-        this.start={lat:ltn,lng:lng}
-
-      return true
-      })
-
-      var pedido=setInterval(()=>{
-        const request = {
-            origin: this.start,
-            destination:{lat:this.place[0].geometry.location.lat(),lng:this.place[0].geometry.location.lng()},
-            travelMode:manera
-        }
-
-        this.directionsService.route(request, (result, status) => {
-            if(status === "OK"){
-              this.directionsRender.setDirections(result);
-              this.setState({Calculo:result});
-              clearInterval(pedido);
-            }else if(status === "ZERO_RESULTS"){
-              clearInterval(pedido);
-              this.setState({Calculo:0});
-            }
-        })
-      },200)
-
-
-
-
-  }
-
+  
   BuscarLugaresCercanos=(posicion)=>{
+    /*Reset Lugares_cercanos*/
     this.setState({
       lugares_cercanos:[]
     })
 
+    /*Request in radius*/
     var request = {
       location: posicion,
       radius: 5000,
     };
-    this.service.nearbySearch(request,this.ProcesarLugaresCercanos)
+
+    /*search sites in radius*/
+    this.service.nearbySearch(request,(place,status)=>{
+      this.setState({
+        lugares_cercanos:place
+      })
+    })
+  }
+
+  CalcularViaje=async (manera,evento)=>{
+    this.directionsRender.setMap(this.map);
+
+    /*Get position GPS */
+    let position =  await this.GetCurrentPosition();
+
+    /*Request for travel */
+    const request = {
+        origin: position,
+        destination:{lat:this.state.busqueda[0].geometry.location.lat(),lng:this.state.busqueda[0].geometry.location.lng()},
+        travelMode:manera
+    }
+
+    /*Return travel duration or error */
+    var pedido=setInterval(()=>{
+      this.directionsService.route(request, (result, status) => {
+          if(status === "OK"){
+            this.directionsRender.setDirections(result);
+            this.setState({Calculo:result});
+            clearInterval(pedido);
+          }else if(status === "ZERO_RESULTS"){
+            clearInterval(pedido);
+            this.setState({Calculo:0});
+          }
+      })
+    },200)
 
   }
-  ProcesarLugaresCercanos=(place,status)=>{
 
-    this.setState({
-      lugares_cercanos:place
+  GetCurrentPosition=()=>{
+    /*Get location fot the navigator  */
+    return new Promise((resolve,reject)=>{
+        navigator.geolocation.getCurrentPosition((pos)=>{
+            resolve({lat:pos.coords.latitude,lng:pos.coords.longitude} )
+        })    
     })
 
   }
-
-
-  CambiarPosicionMapa=(posicionMapa)=>{
-    map= new window.google.maps.Map(document.getElementById("map"),{center:posicionMapa,zoom:15});
-    document.getElementById("map").focus()
-    this.AgregarMarcador(this.place);
-
-  }
-  AgregarMarcador=(lugares)=>{
-
-    lugares.map((Archivos,indice)=>{
-        return new window.google.maps.Marker({position: Archivos.geometry.location, map: map});
-    })
-
-  }
-
 
   Detalles=(place_id)=>{
 
+    /*Reset details*/
     this.setState({
       detalles:[],
     })
 
+    /*Request  query*/
     var detalles={
       placeId:place_id,
       fields: ['photos', 'formatted_address',
       'name','place_id',"icon","type","geometry",'opening_hours','utc_offset_minutes',"reviews"]
     }
-      this.service.getDetails(detalles,this.PocesarDetalles)
-  }
-  PocesarDetalles=(detalles)=>{
-     this.setState({
+
+    this.service.getDetails(detalles,(detalles)=>{
+      this.setState({
         detalles:[detalles],
       })
+    })
+    
   }
 
+  CambiarPosicionMapa=(posicionMapa)=>{
+    /*change location map and add marker*/
+    this.map= new window.google.maps.Map(document.getElementById("map"),{center:posicionMapa,zoom:15});
+    document.getElementById("map").focus()
+    this.AgregarMarcador(this.state.busqueda);
+  }
+
+  AgregarMarcador=(lugares)=>{
+    /*Add marker */
+    lugares.map((Archivos,indice)=>{
+        return new window.google.maps.Marker({position: Archivos.geometry.location, map: this.map});
+    })
+
+  }
 
 
   TeclaEnter=(evento,busqueda)=>{
@@ -177,10 +183,10 @@ class App extends Component {
                       var busqueda=document.getElementById("Buscador").value;this.TeclaEnter(evento,busqueda)}} />
                     <button onClick={()=>{var busqueda=document.getElementById("Buscador").value;this.Buscar(busqueda)}} >Buscar</button>
 
-                    {this.state.busqueda && !this.state.busqueda.length > 0 ? null:
+                    {!this.state.busqueda && !this.state.busqueda.length > 0 ? null:
                     <div>
                       <h2>Calcular Destino</h2>
-                      <p>{this.place[0].name}</p>
+                      <p>{this.state.busqueda[0]  && this.state.busqueda[0] && this.state.busqueda[0].name ? this.state.busqueda[0].name:null}</p>
                       <select id='opciones'>
                         <option value='DRIVING'>Conduciendo</option>
                         <option value="WALKING">Caminando</option>
@@ -219,14 +225,10 @@ class App extends Component {
               </div>
 
 
-                {this.state.busqueda.map((archivos,indice)=>{
+                {this.state.busqueda && this.state.busqueda.length > 0 ?this.state.busqueda.map((archivos,indice)=>{
                   return (<Resultados key={indice} Buscar={this.Buscar} indice={indice} Lugares={this.state.lugares_cercanos} LugaresFuncion={this.BuscarLugaresCercanos} cambiarPosicion={this.CambiarPosicionMapa} Detalles={this.state.detalles} DetallesFuncion={this.Detalles}>{archivos}</Resultados>)
-                  })
+                  }):'No se a encontrado el sitio'
                 }
-
-
-
-
 
             </div>
     );
