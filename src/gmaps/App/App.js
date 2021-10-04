@@ -35,13 +35,7 @@ class App extends Component {
     if(!busqueda){
       return false
     }
-    /*Reset Busqueda*/
-    this.setState({
-      busqueda:[],
-      Calculo:false
-    });
 
-    
     /*request query*/
     var peticion={
       query:busqueda,
@@ -66,10 +60,6 @@ class App extends Component {
   }
   
   BuscarLugaresCercanos=(posicion)=>{
-    /*Reset Lugares_cercanos*/
-    this.setState({
-      lugares_cercanos:[]
-    })
 
     /*Request in radius*/
     var request = {
@@ -80,7 +70,7 @@ class App extends Component {
     /*search sites in radius*/
     this.service.nearbySearch(request,(place,status)=>{
       this.setState({
-        lugares_cercanos:place
+        lugares_cercanos:place || false
       })
     })
   }
@@ -126,11 +116,6 @@ class App extends Component {
 
   Detalles=(place_id)=>{
 
-    /*Reset details*/
-    this.setState({
-      detalles:[],
-    })
-
     /*Request  query*/
     var detalles={
       placeId:place_id,
@@ -140,17 +125,16 @@ class App extends Component {
 
     this.service.getDetails(detalles,(detalles)=>{
       this.setState({
-        detalles:[detalles],
+        detalles:[detalles] || false,
       })
     })
     
   }
 
   CambiarPosicionMapa=(posicionMapa)=>{
-    /*change location map and add marker*/
+    /*change location map */
     this.map= new window.google.maps.Map(document.getElementById("map"),{center:posicionMapa,zoom:15});
     document.getElementById("map").focus()
-    this.AgregarMarcador(this.state.busqueda);
   }
 
   AgregarMarcador=(lugares)=>{
@@ -160,7 +144,6 @@ class App extends Component {
     })
 
   }
-
 
   TeclaEnter=(evento,busqueda)=>{
     if(evento.key === 'Enter'){
@@ -229,6 +212,16 @@ class App extends Component {
                   return (<Resultados key={indice} Buscar={this.Buscar} indice={indice} Lugares={this.state.lugares_cercanos} LugaresFuncion={this.BuscarLugaresCercanos} cambiarPosicion={this.CambiarPosicionMapa} Detalles={this.state.detalles} DetallesFuncion={this.Detalles}>{archivos}</Resultados>)
                   }):'No se a encontrado el sitio'
                 }
+
+                {this.state.busqueda && this.state.busqueda.length > 0 ? this.state.busqueda.map((archivos,indice)=>{
+                  return(
+                    <div>
+                    {archivos.name}
+                    </div>
+                  )
+                }):false}
+                    
+
 
             </div>
     );
