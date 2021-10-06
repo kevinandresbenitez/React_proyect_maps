@@ -1,6 +1,16 @@
 import React,{Component} from 'react';
 import Resultados from '../resultados_busqueda/resultados'
-import './App.css'
+import {Grid,Box,ThemeProvider,createTheme,FormControl,InputLabel,Input,TextField,Typography,MenuItem,Button,Select} from '@material-ui/core';
+import InputBase from '@material-ui/core/InputBase';
+import SearchIcon from '@material-ui/icons/Search';
+import Paper from '@material-ui/core/Paper';
+import IconButton from '@material-ui/core/IconButton';
+
+/*Roboto Font */
+import './index.css';
+
+/* Page Loader */
+import PageLoader from '../pageLoader/pageLoader.js';
 
 
 class App extends Component {
@@ -9,7 +19,10 @@ class App extends Component {
     this.state = {
       busqueda:false,
       detalles:false,
-      lugares_cercanos:false
+      lugares_cercanos:false,
+
+      ViajeMetodo : 'DRIVING',
+      ViajeCalculo : false
     }
   }
 
@@ -31,10 +44,15 @@ class App extends Component {
   }
 
   Buscar=(busqueda)=>{
-
     if(!busqueda){
       return false
     }
+
+    /*Add Loader and reset search*/
+    this.setState({
+      busqueda:'Loading',
+      ViajeCalculo:false
+    })
 
     /*request query*/
     var peticion={
@@ -60,7 +78,6 @@ class App extends Component {
   }
   
   BuscarLugaresCercanos=(posicion)=>{
-
     /*Request in radius*/
     var request = {
       location: posicion,
@@ -76,7 +93,11 @@ class App extends Component {
   }
 
   CalcularViaje=async (manera,evento)=>{
+    /*Add Loader*/
+    this.setState({ViajeCalculo:'Loading'})
+
     this.directionsRender.setMap(this.map);
+
 
     /*Get position GPS */
     let position =  await this.GetCurrentPosition();
@@ -93,11 +114,11 @@ class App extends Component {
       this.directionsService.route(request, (result, status) => {
           if(status === "OK"){
             this.directionsRender.setDirections(result);
-            this.setState({Calculo:result});
+            this.setState({ViajeCalculo:result});
             clearInterval(pedido);
           }else if(status === "ZERO_RESULTS"){
             clearInterval(pedido);
-            this.setState({Calculo:0});
+            this.setState({ViajeCalculo:false});
           }
       })
     },200)
@@ -153,9 +174,105 @@ class App extends Component {
 
   render() {
 
+    return(
+      <Grid container >
+        <Grid container > 
+
+          <Grid item xs={12} md={6} > 
+            <Grid id='map'  height='1000px' maxHeight='650px' />
+          </Grid>
+
+          <Grid item container direction='row' xs={12} md={6} alignItems='flex-start' > 
+
+            <Grid item container direction='row' gap={8} paddingY='20px' flex={true} justifyContent='center' alignItems='flex-start'>
+                <Grid item xs={10} md={8} > 
+                  <Typography fontSize='34px'	textAlign='center' >Buscar Lugares</Typography>
+                  <Paper component="form" sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}>    
+                    <InputBase  id='Buscador' sx={{ ml: 1, flex: 1 }} placeholder="Buscar Lugar" onKeyDown={(evento)=>{var busqueda=document.getElementById("Buscador").value;this.TeclaEnter(evento,busqueda)}} />
+                    <IconButton type="submit" sx={{ p: '10px' }} aria-label="search" onClick={(e)=>{e.preventDefault();this.Buscar(document.getElementById("Buscador").value)}}>
+                      <SearchIcon />
+                    </IconButton>
+                  </Paper> 
+                </Grid >
+
+                {this.state.busqueda && this.state.busqueda !== 'Loading' ? 
+
+                <Grid container item xs={10} md={8} > 
+                      <Grid item xs={10} md={12}> 
+                        <Typography xs={12} fontSize='26px'	fontWeight={200} textAlign='left' >Calcular Viaje</Typography>
+                      </Grid>
+
+                      <Grid item xs={10} md={8} > 
+                          <Select defaultValue='DRIVING' onChange={(e)=>{this.setState({ViajeMetodo:e.target.value})}} id='opciones' fullWidth   variant="standard">
+                              <MenuItem key={'DRIVING'} value={'DRIVING'}>
+                                Conduciendo
+                              </MenuItem>
+                              <MenuItem key={'WALKING'} value={'WALKING'}>
+                                Caminando
+                              </MenuItem>
+                              <MenuItem key={'BICYCLING'} value={'BICYCLING'}>
+                                Bicicleta
+                              </MenuItem>
+                              <MenuItem key={'TRANSIT'} value={'TRANSIT'}>
+                                Transito
+                              </MenuItem>
+                          </Select>                                                      
+                      </Grid>
+                      
+                      <Grid container item xs={6} lg={4}   flex={true} marginX='10px' alignItems='flex-end '> 
+                        <Button onClick={()=>{this.CalcularViaje(this.state.ViajeMetodo)}} variant="outlined">Calcular</Button>
+                      </Grid>
+                </Grid >
+                :false}
+                {this.state.busqueda === 'Loading'  ?  <PageLoader />:false }
+
+                  
+
+                {this.state.ViajeCalculo && this.state.ViajeCalculo !== 'Loading' ? 
+
+                <Grid item xs={8}>
+                  <Typography fontSize='26px' fontWeight={200}	textAlign='left' >Resultados</Typography>
+                  <Typography fontSize='16px' fontWeight={450} >Distancia :
+                    <Typography fontSize='16px' fontWeight={350} >{this.state.ViajeCalculo.routes[0].legs[0].distance.text}</Typography>
+                  </Typography>
+                  <Typography fontSize='16px' fontWeight={450} >Duracion estimada :
+                    <Typography fontSize='16px' fontWeight={350} >{this.state.ViajeCalculo.routes[0].legs[0].duration.text}</Typography>
+                  </Typography>
+                  <Typography fontSize='16px' fontWeight={450} >Distancia inicial :
+                    <Typography fontSize='16px' fontWeight={350} >{this.state.ViajeCalculo.routes[0].legs[0].start_address}</Typography>
+                  </Typography>
+                  <Typography fontSize='16px' fontWeight={450} >Distancia final : 
+                    <Typography fontSize='16px' fontWeight={350} >{this.state.ViajeCalculo.routes[0].legs[0].end_address}</Typography>
+                  </Typography>
+                </Grid>
+
+                :false}
+                {this.state.ViajeCalculo === 'Loading'  ?  <PageLoader />:false }
+                
+
+
+
+
+
+            </Grid>
+  
+
+
+
+
+
+
+
+          </Grid>
+
+        </Grid>
+    </Grid>
+
+
+    )
+
     return (
             <div className='container_app'>
-
               <div className='container_map'>
                   <div id="map" tabIndex="0">
                   </div>
