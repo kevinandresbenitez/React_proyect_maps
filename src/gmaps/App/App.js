@@ -1,6 +1,6 @@
 import React,{Component} from 'react';
 import Resultados from '../resultados_busqueda/resultados'
-import {Grid,Box,ThemeProvider,createTheme,FormControl,InputLabel,Input,TextField,Typography,MenuItem,Button,Select} from '@material-ui/core';
+import {Grid,Typography,MenuItem,Button,Select} from '@material-ui/core';
 import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
 import Paper from '@material-ui/core/Paper';
@@ -179,14 +179,14 @@ class App extends Component {
         <Grid container > 
 
           <Grid item xs={12} md={6} > 
-            <Grid id='map'  height='1000px' maxHeight='650px' />
+            <Grid id='map'  height={{xs:'50vh',md:'650px'}}  />
           </Grid>
 
           <Grid item container direction='row' xs={12} md={6} alignItems='flex-start' > 
 
             <Grid item container direction='row' gap={8} paddingY='20px' flex={true} justifyContent='center' alignItems='flex-start'>
-                <Grid item xs={10} md={8} > 
-                  <Typography fontSize='34px'	textAlign='center' >Buscar Lugares</Typography>
+                <Grid item xs={11} sm={8} md={9} lg={8}  > 
+                  <Typography fontSize={{xs:'28px' ,sm:'34px'}}	textAlign='center' >Buscar Lugares</Typography>
                   <Paper component="form" sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}>    
                     <InputBase  id='Buscador' sx={{ ml: 1, flex: 1 }} placeholder="Buscar Lugar" onKeyDown={(evento)=>{var busqueda=document.getElementById("Buscador").value;this.TeclaEnter(evento,busqueda)}} />
                     <IconButton type="submit" sx={{ p: '10px' }} aria-label="search" onClick={(e)=>{e.preventDefault();this.Buscar(document.getElementById("Buscador").value)}}>
@@ -197,12 +197,12 @@ class App extends Component {
 
                 {this.state.busqueda && this.state.busqueda !== 'Loading' ? 
 
-                <Grid container item xs={10} md={8} > 
-                      <Grid item xs={10} md={12}> 
-                        <Typography xs={12} fontSize='26px'	fontWeight={200} textAlign='left' >Calcular Viaje</Typography>
+                <Grid container item xs={11} sm={8} md={9} lg={8} > 
+                      <Grid item xs={12} > 
+                        <Typography xs={12} fontSize={{xs:'24px' ,sm:'26px'}}	fontWeight={200} textAlign='left' >Calcular Viaje</Typography>
                       </Grid>
 
-                      <Grid item xs={10} md={8} > 
+                      <Grid item xs={12} sm={8} lg={9} > 
                           <Select defaultValue='DRIVING' onChange={(e)=>{this.setState({ViajeMetodo:e.target.value})}} id='opciones' fullWidth   variant="standard">
                               <MenuItem key={'DRIVING'} value={'DRIVING'}>
                                 Conduciendo
@@ -219,8 +219,9 @@ class App extends Component {
                           </Select>                                                      
                       </Grid>
                       
-                      <Grid container item xs={6} lg={4}   flex={true} marginX='10px' alignItems='flex-end '> 
-                        <Button onClick={()=>{this.CalcularViaje(this.state.ViajeMetodo)}} variant="outlined">Calcular</Button>
+                      
+                      <Grid container item xs={4} sm='auto' md={3} lg='auto' flex={true} marginX={{xs:'auto',sm:'8px'}} marginY={{xs:'10px',sm:'0px'}}  alignItems='flex-end'> 
+                        <Button fullWidth onClick={()=>{this.CalcularViaje(this.state.ViajeMetodo)}} variant="text">Calcular</Button>
                       </Grid>
                 </Grid >
                 :false}
@@ -230,18 +231,18 @@ class App extends Component {
 
                 {this.state.ViajeCalculo && this.state.ViajeCalculo !== 'Loading' ? 
 
-                <Grid item xs={8}>
-                  <Typography fontSize='26px' fontWeight={200}	textAlign='left' >Resultados</Typography>
-                  <Typography fontSize='16px' fontWeight={450} >Distancia :
+                <Grid item xs={11} sm={8} >
+                  <Typography fontSize={{xs:'24px' ,sm:'26px'}} fontWeight={200}	textAlign='left' >Resultados</Typography>
+                  <Typography component={'span'} fontSize='16px' fontWeight={450} >Distancia :
                     <Typography fontSize='16px' fontWeight={350} >{this.state.ViajeCalculo.routes[0].legs[0].distance.text}</Typography>
                   </Typography>
-                  <Typography fontSize='16px' fontWeight={450} >Duracion estimada :
+                  <Typography component={'span'} fontSize='16px' fontWeight={450} >Duracion estimada :
                     <Typography fontSize='16px' fontWeight={350} >{this.state.ViajeCalculo.routes[0].legs[0].duration.text}</Typography>
                   </Typography>
-                  <Typography fontSize='16px' fontWeight={450} >Distancia inicial :
+                  <Typography component={'span'} fontSize='16px' fontWeight={450} >Distancia inicial :
                     <Typography fontSize='16px' fontWeight={350} >{this.state.ViajeCalculo.routes[0].legs[0].start_address}</Typography>
                   </Typography>
-                  <Typography fontSize='16px' fontWeight={450} >Distancia final : 
+                  <Typography component={'span'} fontSize='16px' fontWeight={450} >Distancia final : 
                     <Typography fontSize='16px' fontWeight={350} >{this.state.ViajeCalculo.routes[0].legs[0].end_address}</Typography>
                   </Typography>
                 </Grid>
