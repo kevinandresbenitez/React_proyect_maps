@@ -1,48 +1,49 @@
 import React,{Component} from 'react';
-import Resultados from '../resultados_busqueda/resultados'
-import {Grid,Typography,MenuItem,Button,Select} from '@material-ui/core';
-import InputBase from '@material-ui/core/InputBase';
+/*Material ui components*/
+import {Grid,Typography,MenuItem,Button,Select,InputBase,Paper,IconButton} from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import Paper from '@material-ui/core/Paper';
-import IconButton from '@material-ui/core/IconButton';
-
-/*Roboto Font */
+/*Css Values Globals */
 import './index.css';
-
 /* Page Loader */
-import PageLoader from '../pageLoader/pageLoader.js';
+import CyrcleLoader from './components/loaders/CyrcleLoader.js';
+/*Components */
+import FormFailed from './components/formFailed/index.js'
 
 
-class App extends Component {
-  constructor(props) {
+class App extends Component{
+  
+  constructor(props){
     super(props);
-    this.state = {
-      busqueda:false,
-      detalles:false,
-      lugares_cercanos:false,
+    this.state ={
+      Busqueda : false,
+      LugaresDetalles : false,
+      LugaresCercanos :false,
 
       ViajeMetodo : 'DRIVING',
       ViajeCalculo : false
+
     }
+
   }
 
   componentDidMount(){
 
     /*init google services*/
-    var intervalgoogle = setInterval(()=>{
+    let intervalgoogle = setInterval(()=>{
       if(window.google){
         clearInterval(intervalgoogle)
-        var posicion_inicial= new window.google.maps.LatLng(-34.6083, -58.3712);
-        this.map= new window.google.maps.Map(document.getElementById("map"),{center:posicion_inicial,zoom:15})
+        let posicionInicial= new window.google.maps.LatLng(-34.6083, -58.3712);
+        
+          /*Adding global variables to this*/
+        this.map= new window.google.maps.Map(document.getElementById("map"),{center:posicionInicial,zoom:15})
         this.directionsService = new window.google.maps.DirectionsService();
         this.directionsRender = new window.google.maps.DirectionsRenderer();
-        this.service = new window.google.maps.places.PlacesService(this.map);
+        this.service = new window.google.maps.places.PlacesService(this.map); 
       }
     },200)
 
-
   }
-
+  
   Buscar=(busqueda)=>{
     if(!busqueda){
       return false
@@ -50,7 +51,7 @@ class App extends Component {
 
     /*Add Loader and reset search*/
     this.setState({
-      busqueda:'Loading',
+      Busqueda:'Loading',
       ViajeCalculo:false
     })
 
@@ -66,12 +67,18 @@ class App extends Component {
     this.service.findPlaceFromQuery(peticion,(place,status)=>{
       if(status === 'OK'){
         this.CambiarPosicionMapa(place[0].geometry.location)
-        this.AgregarMarcador(place)
+        this.AgregarMarcador(place)                
+        /*Update place */
         this.setState({
-          busqueda:place || false,
-          Calculo:false
-        });        
-      }
+          Busqueda:place,
+        })
+      }else{
+        /*Update place failse */
+        this.setState({
+          Busqueda:'Failed',
+        })
+
+      }      
       
     });
     
@@ -86,26 +93,28 @@ class App extends Component {
 
     /*search sites in radius*/
     this.service.nearbySearch(request,(place,status)=>{
+      /*Add sites */
       this.setState({
-        lugares_cercanos:place || false
+        LugaresCercanos:place || false,
       })
+
     })
   }
 
   CalcularViaje=async (manera,evento)=>{
     /*Add Loader*/
-    this.setState({ViajeCalculo:'Loading'})
+    this.setState({
+      ViajeCalculo:'Loading'
+    })
 
+    /* Update map */
     this.directionsRender.setMap(this.map);
-
-
     /*Get position GPS */
     let position =  await this.GetCurrentPosition();
-
     /*Request for travel */
     const request = {
         origin: position,
-        destination:{lat:this.state.busqueda[0].geometry.location.lat(),lng:this.state.busqueda[0].geometry.location.lng()},
+        destination:{lat:this.state.Busqueda[0].geometry.location.lat(),lng:this.state.Busqueda[0].geometry.location.lng()},
         travelMode:manera
     }
 
@@ -114,18 +123,25 @@ class App extends Component {
       this.directionsService.route(request, (result, status) => {
           if(status === "OK"){
             this.directionsRender.setDirections(result);
-            this.setState({ViajeCalculo:result});
+            /*Add Result */
+            this.setState({
+              ViajeCalculo:result
+            })
+
             clearInterval(pedido);
           }else if(status === "ZERO_RESULTS"){
+            /*Add Result */
+            this.setState({
+              ViajeCalculo:'Failed'
+            })
             clearInterval(pedido);
-            this.setState({ViajeCalculo:false});
           }
       })
     },200)
 
   }
 
-  GetCurrentPosition=()=>{
+  GetCurrentPosition =()=>{
     /*Get location fot the navigator  */
     return new Promise((resolve,reject)=>{
         navigator.geolocation.getCurrentPosition((pos)=>{
@@ -135,7 +151,7 @@ class App extends Component {
 
   }
 
-  Detalles=(place_id)=>{
+  Detalles =(place_id)=>{
 
     /*Request  query*/
     var detalles={
@@ -146,19 +162,19 @@ class App extends Component {
 
     this.service.getDetails(detalles,(detalles)=>{
       this.setState({
-        detalles:[detalles] || false,
+        LugaresDetalles : detalles || false
       })
     })
     
   }
 
-  CambiarPosicionMapa=(posicionMapa)=>{
+  CambiarPosicionMapa =(posicionMapa)=>{
     /*change location map */
-    this.map= new window.google.maps.Map(document.getElementById("map"),{center:posicionMapa,zoom:15});
+    this.map = new window.google.maps.Map(document.getElementById("map"),{center:posicionMapa,zoom:15});
     document.getElementById("map").focus()
   }
 
-  AgregarMarcador=(lugares)=>{
+  AgregarMarcador =(lugares)=>{
     /*Add marker */
     lugares.map((Archivos,indice)=>{
         return new window.google.maps.Marker({position: Archivos.geometry.location, map: this.map});
@@ -166,14 +182,13 @@ class App extends Component {
 
   }
 
-  TeclaEnter=(evento,busqueda)=>{
+  TeclaEnter =(evento,busqueda)=>{
     if(evento.key === 'Enter'){
       this.Buscar(busqueda)
     }
   }
 
-  render() {
-
+  render(){
     return(
       <Grid container >
         <Grid container > 
@@ -185,7 +200,7 @@ class App extends Component {
           <Grid item container direction='row' xs={12} md={6} alignItems='flex-start' > 
 
             <Grid item container direction='row' gap={8} paddingY='20px' flex={true} justifyContent='center' alignItems='flex-start'>
-                <Grid item xs={11} sm={8} md={9} lg={8}  > 
+                <Grid item xs={11} className='AnimationShow' sm={8} md={9} lg={8}  > 
                   <Typography fontSize={{xs:'28px' ,sm:'34px'}}	textAlign='center' >Buscar Lugares</Typography>
                   <Paper component="form" sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}>    
                     <InputBase  id='Buscador' sx={{ ml: 1, flex: 1 }} placeholder="Buscar Lugar" onKeyDown={(evento)=>{var busqueda=document.getElementById("Buscador").value;this.TeclaEnter(evento,busqueda)}} />
@@ -195,9 +210,10 @@ class App extends Component {
                   </Paper> 
                 </Grid >
 
-                {this.state.busqueda && this.state.busqueda !== 'Loading' ? 
 
-                <Grid container item xs={11} sm={8} md={9} lg={8} > 
+                {/* Buequeda section ,loader,error  */}
+                {this.state.Busqueda && this.state.Busqueda !== 'Loading' && this.state.Busqueda !== 'Failed' ? 
+                <Grid container className='AnimationShow' item xs={11} sm={8} md={9} lg={8} > 
                       <Grid item xs={12} > 
                         <Typography xs={12} fontSize={{xs:'24px' ,sm:'26px'}}	fontWeight={200} textAlign='left' >Calcular Viaje</Typography>
                       </Grid>
@@ -217,21 +233,21 @@ class App extends Component {
                                 Transito
                               </MenuItem>
                           </Select>                                                      
-                      </Grid>
-                      
+                      </Grid>                      
                       
                       <Grid container item xs={4} sm='auto' md={3} lg='auto' flex={true} marginX={{xs:'auto',sm:'8px'}} marginY={{xs:'10px',sm:'0px'}}  alignItems='flex-end'> 
                         <Button fullWidth onClick={()=>{this.CalcularViaje(this.state.ViajeMetodo)}} variant="text">Calcular</Button>
                       </Grid>
                 </Grid >
                 :false}
-                {this.state.busqueda === 'Loading'  ?  <PageLoader />:false }
+                {this.state.Busqueda === 'Loading'  ?  <CyrcleLoader />:false }
+                {this.state.Busqueda === 'Failed'  ? <FormFailed />:false }
+                {/* end Busqueda section  */}
 
-                  
 
-                {this.state.ViajeCalculo && this.state.ViajeCalculo !== 'Loading' ? 
-
-                <Grid item xs={11} sm={8} >
+                {/* Viaje Calculo options,loader,error */}
+                {this.state.ViajeCalculo && this.state.ViajeCalculo !== 'Loading' && this.state.ViajeCalculo !== 'Failed' ? 
+                <Grid item xs={11} className='AnimationShow' sm={8} >
                   <Typography fontSize={{xs:'24px' ,sm:'26px'}} fontWeight={200}	textAlign='left' >Resultados</Typography>
                   <Typography component={'span'} fontSize='16px' fontWeight={450} >Distancia :
                     <Typography fontSize='16px' fontWeight={350} >{this.state.ViajeCalculo.routes[0].legs[0].distance.text}</Typography>
@@ -246,24 +262,14 @@ class App extends Component {
                     <Typography fontSize='16px' fontWeight={350} >{this.state.ViajeCalculo.routes[0].legs[0].end_address}</Typography>
                   </Typography>
                 </Grid>
-
                 :false}
-                {this.state.ViajeCalculo === 'Loading'  ?  <PageLoader />:false }
-                
-
-
-
+                {this.state.ViajeCalculo === 'Loading'  ?  <CyrcleLoader />:false }
+                {this.state.ViajeCalculo === 'Failed'  ? <FormFailed />:false }              
+                {/* end Viaje Calculo section  */}
 
 
             </Grid>
   
-
-
-
-
-
-
-
           </Grid>
 
         </Grid>
@@ -271,6 +277,15 @@ class App extends Component {
 
 
     )
+  }
+  
+}
+
+export default App;
+
+
+
+/*
 
     return (
             <div className='container_app'>
@@ -343,7 +358,9 @@ class App extends Component {
 
             </div>
     );
-  }
-}
 
-export default App;
+
+
+
+
+*/

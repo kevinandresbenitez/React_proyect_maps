@@ -1,6 +1,6 @@
-import './pageLoader.css';
+import './CyrcleLoader.css';
 
-export default function PageLoader(){
+export default function CyrcleLoader(){
 
     return (
         <div className='page_loader'>
