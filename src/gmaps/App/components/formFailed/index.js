@@ -1,7 +1,7 @@
 import React from 'react';
 
 /*Material ui components*/
-import {Grid,Typography} from '@material-ui/core';
+import {Grid,Typography} from '@mui/material/';
 
 
 export default function FormFailed(){

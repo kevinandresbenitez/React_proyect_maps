@@ -1,24 +1,22 @@
 import React,{Component} from 'react';
 /*Material ui components*/
-import {Grid,Typography,MenuItem,Button,Select,InputBase,Paper,IconButton} from '@material-ui/core';
-import SearchIcon from '@material-ui/icons/Search';
+import {Grid,Typography,MenuItem,Button,Select,InputBase,Paper,IconButton} from '@mui/material/';
+import SearchIcon from '@mui/icons-material/Search';
 /*Css Values Globals */
 import './index.css';
 /* Page Loader */
 import CyrcleLoader from './components/loaders/CyrcleLoader.js';
 /*Components */
 import FormFailed from './components/formFailed/index.js'
-
+import ItemBusqueda from './components/ItemBusqueda/index.js';
 
 class App extends Component{
   
   constructor(props){
     super(props);
     this.state ={
-      Busqueda : false,
-      LugaresDetalles : false,
-      LugaresCercanos :false,
 
+      Busqueda : false,    
       ViajeMetodo : 'DRIVING',
       ViajeCalculo : false
 
@@ -84,21 +82,20 @@ class App extends Component{
     
   }
   
-  BuscarLugaresCercanos=(posicion)=>{
+  BuscarLugaresCercanos= (posicion)=>{
     /*Request in radius*/
     var request = {
       location: posicion,
       radius: 5000,
     };
 
-    /*search sites in radius*/
-    this.service.nearbySearch(request,(place,status)=>{
-      /*Add sites */
-      this.setState({
-        LugaresCercanos:place || false,
+    /*Return a promise with the data  */
+    return new Promise((resolve,reject)=>{      
+      this.service.nearbySearch(request, (place,status)=>{      
+        resolve(place)
       })
-
     })
+
   }
 
   CalcularViaje=async (manera,evento)=>{
@@ -160,11 +157,13 @@ class App extends Component{
       'name','place_id',"icon","type","geometry",'opening_hours','utc_offset_minutes',"reviews"]
     }
 
-    this.service.getDetails(detalles,(detalles)=>{
-      this.setState({
-        LugaresDetalles : detalles || false
+    /* Return the data with a promise*/
+    return new Promise((resolve,reject)=>{
+      this.service.getDetails(detalles,(detalles)=>{
+        resolve(detalles)
       })
     })
+
     
   }
 
@@ -273,7 +272,17 @@ class App extends Component{
           </Grid>
 
         </Grid>
-    </Grid>
+
+      <Grid flex justifyContent='center' alignItems='center'  gap={5} paddingY={5} container >
+
+        {this.state.Busqueda && this.state.Busqueda !== 'Loading' && this.state.Busqueda !== 'Failed' && this.state.Busqueda.length > 0  ? this.state.Busqueda.map((obj,key)=>{
+          return(<ItemBusqueda BuscarLugaresCercanos={this.BuscarLugaresCercanos} BuscarDetalles={this.Detalles} itemKey={key}>{obj}</ItemBusqueda>)
+        }):false}
+
+      </Grid>
+
+
+      </Grid>
 
 
     )
@@ -282,85 +291,3 @@ class App extends Component{
 }
 
 export default App;
-
-
-
-/*
-
-    return (
-            <div className='container_app'>
-              <div className='container_map'>
-                  <div id="map" tabIndex="0">
-                  </div>
-
-                  <div id="buscador">
-                    <h1>Buscar sitio</h1>
-                    <input type="text" placeholder='Buscar ...' id='Buscador' onKeyDown={(evento)=>{
-                      var busqueda=document.getElementById("Buscador").value;this.TeclaEnter(evento,busqueda)}} />
-                    <button onClick={()=>{var busqueda=document.getElementById("Buscador").value;this.Buscar(busqueda)}} >Buscar</button>
-
-                    {!this.state.busqueda && !this.state.busqueda.length > 0 ? null:
-                    <div>
-                      <h2>Calcular Destino</h2>
-                      <p>{this.state.busqueda[0]  && this.state.busqueda[0] && this.state.busqueda[0].name ? this.state.busqueda[0].name:null}</p>
-                      <select id='opciones'>
-                        <option value='DRIVING'>Conduciendo</option>
-                        <option value="WALKING">Caminando</option>
-                        <option value="BICYCLING">Bicicleta</option>
-                        <option value="TRANSIT">Trancito</option>
-                      </select >
-
-                      <button onClick={()=>{this.CalcularViaje(document.getElementById('opciones').value)}}>ir a</button>
-                    </div>
-                    }
-
-                    {!this.state.Calculo ? null:
-                      <div className='Calculo_distancia'>
-                        <h3>Resultados :</h3>
-                        <p><strong>Distancia : </strong>{this.state.Calculo.routes[0].legs[0].distance.text}</p> 
-                        <p><strong>Duracion estimada : </strong>{this.state.Calculo.routes[0].legs[0].duration.text}</p>
-
-                        <p><strong>Distancia inicial : </strong>{this.state.Calculo.routes[0].legs[0].start_address}</p>
-                        <p><strong>Distancia final : </strong>{this.state.Calculo.routes[0].legs[0].end_address}</p>                                                                   
-                      </div>
-                    }
-
-                    {this.state.Calculo !== 0 ? null:                    
-                      <div className='Calculo_distancia'>
-                        <h3>Resultados :</h3>
-                        <strong>No se a podido calcular</strong>
-                      </div>
-
-                    }
-
-
-
-                  </div>
-
-
-              </div>
-
-
-                {this.state.busqueda && this.state.busqueda.length > 0 ?this.state.busqueda.map((archivos,indice)=>{
-                  return (<Resultados key={indice} Buscar={this.Buscar} indice={indice} Lugares={this.state.lugares_cercanos} LugaresFuncion={this.BuscarLugaresCercanos} cambiarPosicion={this.CambiarPosicionMapa} Detalles={this.state.detalles} DetallesFuncion={this.Detalles}>{archivos}</Resultados>)
-                  }):'No se a encontrado el sitio'
-                }
-
-                {this.state.busqueda && this.state.busqueda.length > 0 ? this.state.busqueda.map((archivos,indice)=>{
-                  return(
-                    <div>
-                    {archivos.name}
-                    </div>
-                  )
-                }):false}
-                    
-
-
-            </div>
-    );
-
-
-
-
-
-*/
