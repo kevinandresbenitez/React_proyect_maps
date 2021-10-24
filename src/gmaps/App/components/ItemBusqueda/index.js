@@ -4,10 +4,23 @@ import {useState} from 'react';
 /*Impor css  */
 import './index.css'
 /*Material ui modules */
-import {Rating,Grid,Button,CardActions,CardContent,CardMedia,Typography} from '@mui/material/';
+import {Icon,Avatar,Rating,Grid,Button,CardActions,CardContent,CardMedia,Typography,ImageList,ImageListItem} from '@mui/material/';
 
 /* Page Loader */
 import CyrcleLoader from '../loaders/CyrcleLoader.js';
+
+
+
+function srcset(image, size, rows = 1, cols = 1) {
+  return {
+    src: `${image}?w=${size * cols}&h=${size * rows}&fit=crop&auto=format`,
+    srcSet: `${image}?w=${size * cols}&h=${
+      size * rows
+    }&fit=crop&auto=format&dpr=2 2x`,
+  };
+}
+
+
 
 
 export default function ItemBusqueda (props){
@@ -72,61 +85,188 @@ export default function ItemBusqueda (props){
 
   }
 
+    console.log(LugaresCercanos)
+
     return (
+        <Grid item container md={8} lg={widthContainer}  sx={{boxShadow: 3 }} overflow='hidden'   justifyContent='center' alignItems='flex-start'>
 
-      <Grid item md={12} container justifyContent='center' alignItems='center'>
-        <Grid item md={widthContainer} className='active' sx={{ borderRadius: 2 }} sx={{ boxShadow: 3 }} overflow='hidden' item container justifyContent='center' alignItems='flex-start'>
-
-          <Grid container item md={widthCard} >
-          <CardMedia
-          component="img"
-          height="300"
-          image={`${props.children.photos ? props.children.photos[0].getUrl():null}`}
-          alt={props.key}
-          />
-          
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              {props.children.name}
-            </Typography>
-
-            {props.children.rating ? <Rating name="read-only" value={props.children.rating} readOnly />:false}
+          {/* Item first*/}
+          <Grid container item xs={12}  md={12} lg={widthCard}  >
+            <CardMedia component="img" height="350" image={`${props.children.photos ? props.children.photos[0].getUrl():null}`} alt={props.key} />
             
-            <Typography variant="body2" color="text.secondary">
-              Lizards are a widespread group of squamate reptiles, with over 6,000
-              species, ranging across all continents except Antarctica
-            </Typography>
-          </CardContent>
-          
-          <CardActions>
-            <Button onClick={()=>{ShowLugares(props.children.geometry.location)}} size="small">Lugares Cercanos</Button>
-            <Button onClick={()=>{ShowDetails(props.children.place_id)}} size="small">Detalles</Button>
-            <Button size="small">Ir a</Button>
-          </CardActions>
+            <CardContent>
+              <Typography gutterBottom variant="h5" component="div">
+                {props.children.name}
+                <img src={props.children.icon} style={{margin:'auto 10px',width:'20px',height:'20px' }} />
+              </Typography>
+
+              {props.children.rating ? <Rating name="read-only" value={props.children.rating} readOnly />:false}
+              
+              <Typography variant="body2" color="text.secondary">              
+                {props.children.formatted_address}
+              </Typography>
+
+            </CardContent>
+            
+            <Grid item  xs={12} >
+              <CardActions>
+                <Button onClick={()=>{ShowLugares(props.children.geometry.location)}} size="small">Lugares Cercanos</Button>
+                <Button onClick={()=>{ShowDetails(props.children.place_id)}} size="small">Detalles</Button>
+                <Button size="small">Ir a</Button>
+              </CardActions>      
+            </Grid>          
           </Grid>
+          {/* Item first */}
+
+          {/* Item Active section*/}
 
           {widthInfo && widthInfo > 0 ? 
-            <Grid container item md={widthInfo}>
+            <Grid paddingX='10px'  container item lg={widthInfo} maxHeight='525px'  overflow='auto'>              
+              {Details === 'Loading' ? 
+              
+              <Grid xs={12} item container flex={true}  justifyContent='center' alignItems='center'>
+                <CyrcleLoader /> 
+              </Grid>
+              
+              
+              : false}
+              {Details && Details !== 'Hidden' && LugaresCercanos === 'Hidden' && Details !== 'Loading' ? 
+              
+
+              <Grid container item xs={12} >
+
+                {/* IMG item */}
+                <ImageList variant="quilted" cols={4}  rowHeight={121} >
+                  {Details && Details.photos  ? Details.photos.map((item,key)=>{
+                    if(key <= 5){
+                      return(
+                    <ImageListItem cols={item.cols || (key === 0 || key === 5 ? 2:1)}  key={key}  rows={item.rows || 2 }>
+                      <img
+                        {...srcset(item.getUrl(), 121, item.rows, item.cols)}
+                        alt={item.title}
+                        loading="lazy"                        
+                      />
+                    </ImageListItem>
+                      )
+                    }else{return false}
+                  }):false}
+                </ImageList>
+                {/* IMG Item */}
+              
+              
+                {/* opening_hours Item */}
+                <Grid container item >
+                  {Details.opening_hours ? 
+                      <Grid item xs={11}  sm={8} >
+                        <Typography fontSize={{xs:'24px' ,sm:'26px'}} fontWeight={200}	textAlign='left' >Horarios</Typography>
+                      </Grid>                                        
+                  :false}
+
+                  {Details.opening_hours ? Details.opening_hours.weekday_text.map((obj,key)=>{
+                    return(
+                      <Grid item xs={11}  sm={8} key={key}>
+                      <Typography fontSize='16px' fontWeight={350} >{obj}</Typography>
+                      </Grid>                    
+                    )                                     
+                  }):false}
+                </Grid>
+              {/* opening_hours Item */}
+
+                {/*Reviews*/}
+                <Grid container item xs={12} marginTop='20px'> 
+                {Details.reviews ?                 
+                  <Grid item xs={11}  sm={8} >
+                    <Typography fontSize={{xs:'24px' ,sm:'26px'}} fontWeight={200}	textAlign='left' >Reseñas</Typography>
+                  </Grid> 
+                :false}
+
+                {Details.reviews  ? Details.reviews.map((obj,key)=>{                  
+                  return(
+                    <Grid container item marginY='10px' key={key} >
+                      <Grid item  container xs={12} flex={true} alignItems='center' >
+                        <Grid item xs='auto'> 
+                          <Avatar alt={obj.author_name} src={obj.author_url} />
+                        </Grid>
+                        <Grid item xs='auto' marginX='5px'> 
+                          <Typography gutterBottom variant="p" fontWeight={400} component="span">
+                            {obj.author_name}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} marginX='2px'> 
+                          {obj.rating ? <Rating name="read-only" value={obj.rating} readOnly />:false}
+                        </Grid>
+                      </Grid>
+                      <Grid item>
+                      {obj.text}
+                      </Grid>                      
+                    </Grid>
+                  )
+                }):false}
+                </Grid>
+                {/*Reviews*/}              
+              </Grid>
+              
+              :false}
+
 
               
-              {Details === 'Loading' ? <CyrcleLoader /> : false}
-              {Details && Details !== 'Hidden' && LugaresCercanos === 'Hidden' && Details !== 'Loading' ? 'ya Cargo 1' :false}
-
-
-
               {LugaresCercanos === 'Loading' ? <CyrcleLoader /> : false}
-              {LugaresCercanos && LugaresCercanos !== 'Hidden' && Details === 'Hidden'  && LugaresCercanos !== 'Loading' ? 'ya Cargo 2' :false}
+              {LugaresCercanos && LugaresCercanos !== 'Hidden' && Details === 'Hidden'  && LugaresCercanos !== 'Loading' ?
 
-            </Grid>
+              LugaresCercanos.map((obj,key)=>{
+                return(
+                <Grid item container xs={12} marginY='10px' key={key} >
 
-            
-            
+                <ImageList variant="quilted" cols={4}  rowHeight={121} >
+                    <ImageListItem cols={12} rows={4}>
+                      <img
+                        src={obj.photos ? obj.photos[0].getUrl() : obj.icon}
+                        alt={obj.name}
+                        loading="lazy"                        
+                      />
+                    </ImageListItem>
+                </ImageList>
 
+
+                  <Grid container item xs={12}>
+                    <Typography gutterBottom variant="h5" component="p">
+                      {obj.name}
+                      <img src={obj.icon} style={{margin:'auto 10px',width:'20px',height:'20px' }} />
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    {obj.rating ? <Rating name="read-only" value={obj.rating} readOnly />:false}
+                  </Grid>
+
+                  
+
+                  <Typography variant="body2" color="text.secondary">              
+                    {obj.vicinity}
+                  </Typography>
+
+
+                  <Grid item xs={12} marginY='10px' >
+                    <Button size="small" variant="outlined">Ir a</Button>
+                  </Grid>
+
+
+
+                </Grid>
+                )
+              })
+              
+              
+              :false}
+
+
+
+            </Grid>                      
           :false}
+          {/* Item Active section */}
 
 
         </Grid>
-      </Grid>
 
 
 

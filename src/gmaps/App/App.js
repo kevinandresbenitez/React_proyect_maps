@@ -276,7 +276,11 @@ class App extends Component{
       <Grid flex justifyContent='center' alignItems='center'  gap={5} paddingY={5} container >
 
         {this.state.Busqueda && this.state.Busqueda !== 'Loading' && this.state.Busqueda !== 'Failed' && this.state.Busqueda.length > 0  ? this.state.Busqueda.map((obj,key)=>{
-          return(<ItemBusqueda BuscarLugaresCercanos={this.BuscarLugaresCercanos} BuscarDetalles={this.Detalles} itemKey={key}>{obj}</ItemBusqueda>)
+          return(
+            <Grid item md={12} container justifyContent='center' alignItems='center' key={key}>
+              <ItemBusqueda BuscarLugaresCercanos={this.BuscarLugaresCercanos} BuscarDetalles={this.Detalles} >{obj}</ItemBusqueda>
+            </Grid>
+          )
         }):false}
 
       </Grid>
