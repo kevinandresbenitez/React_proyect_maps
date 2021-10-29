@@ -5,10 +5,10 @@ import SearchIcon from '@mui/icons-material/Search';
 /*Css Values Globals */
 import './index.css';
 /* Page Loader */
-import CyrcleLoader from './components/loaders/CyrcleLoader.js';
+import CyrcleLoader from './components/loaders/CyrcleLoader/CyrcleLoader.js';
 /*Components */
 import FormFailed from './components/formFailed/index.js'
-import ItemBusqueda from './components/ItemBusqueda/index.js';
+import ItemBusqueda from './components/searchedItem/index.js';
 
 class App extends Component{
   
@@ -42,7 +42,7 @@ class App extends Component{
 
   }
   
-  Buscar=(busqueda)=>{
+  SearchPlaces=(busqueda)=>{
     if(!busqueda){
       return false
     }
@@ -64,14 +64,14 @@ class App extends Component{
     /*Search function */
     this.service.findPlaceFromQuery(peticion,(place,status)=>{
       if(status === 'OK'){
-        this.CambiarPosicionMapa(place[0].geometry.location)
-        this.AgregarMarcador(place)                
+        this.ChangePositionMap(place[0].geometry.location)
+        this.AddBookmark(place[0].geometry.location)                
         /*Update place */
         this.setState({
           Busqueda:place,
         })
       }else{
-        /*Update place failse */
+        /*Update place failed */
         this.setState({
           Busqueda:'Failed',
         })
@@ -82,7 +82,7 @@ class App extends Component{
     
   }
   
-  BuscarLugaresCercanos= (posicion)=>{
+  SearchPlacesNearby= (posicion)=>{
     /*Request in radius*/
     var request = {
       location: posicion,
@@ -98,7 +98,7 @@ class App extends Component{
 
   }
 
-  CalcularViaje=async (manera,evento)=>{
+  CalculateTrip=async (manera,evento)=>{
     /*Add Loader*/
     this.setState({
       ViajeCalculo:'Loading'
@@ -148,10 +148,10 @@ class App extends Component{
 
   }
 
-  Detalles =(place_id)=>{
+  Details =(place_id)=>{
 
     /*Request  query*/
-    var detalles={
+    var Details={
       placeId:place_id,
       fields: ['photos', 'formatted_address',
       'name','place_id',"icon","type","geometry",'opening_hours','utc_offset_minutes',"reviews"]
@@ -159,39 +159,44 @@ class App extends Component{
 
     /* Return the data with a promise*/
     return new Promise((resolve,reject)=>{
-      this.service.getDetails(detalles,(detalles)=>{
-        resolve(detalles)
+      this.service.getDetails(Details,(Details)=>{
+        resolve(Details)
       })
     })
 
     
   }
 
-  CambiarPosicionMapa =(posicionMapa)=>{
+  ChangePositionMap =(location)=>{
     /*change location map */
-    this.map = new window.google.maps.Map(document.getElementById("map"),{center:posicionMapa,zoom:15});
-    document.getElementById("map").focus()
+    this.map = new window.google.maps.Map(document.getElementById("map"),{center:location,zoom:15});
+
+    /*Focus map*/
+    window.scroll({
+      top: 0,
+      behavior: 'smooth'
+    });
+
   }
 
-  AgregarMarcador =(lugares)=>{
+  AddBookmark =(location)=>{
     /*Add marker */
-    lugares.map((Archivos,indice)=>{
-        return new window.google.maps.Marker({position: Archivos.geometry.location, map: this.map});
-    })
+    return new window.google.maps.Marker({position: location, map: this.map});
 
   }
 
-  TeclaEnter =(evento,busqueda)=>{
+  EnterKey =(evento,query)=>{
     if(evento.key === 'Enter'){
-      this.Buscar(busqueda)
+      this.SearchPlaces(query)
     }
   }
 
   render(){
     return(
       <Grid container >
-        <Grid container > 
 
+        {/*Map y form section */}
+        <Grid container > 
           <Grid item xs={12} md={6} > 
             <Grid id='map'  height={{xs:'50vh',md:'650px'}}  />
           </Grid>
@@ -199,15 +204,18 @@ class App extends Component{
           <Grid item container direction='row' xs={12} md={6} alignItems='flex-start' > 
 
             <Grid item container direction='row' gap={8} paddingY='20px' flex={true} justifyContent='center' alignItems='flex-start'>
+
+                {/*Form Search */}
                 <Grid item xs={11} className='AnimationShow' sm={8} md={9} lg={8}  > 
                   <Typography fontSize={{xs:'28px' ,sm:'34px'}}	textAlign='center' >Buscar Lugares</Typography>
                   <Paper component="form" sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}>    
-                    <InputBase  id='Buscador' sx={{ ml: 1, flex: 1 }} placeholder="Buscar Lugar" onKeyDown={(evento)=>{var busqueda=document.getElementById("Buscador").value;this.TeclaEnter(evento,busqueda)}} />
-                    <IconButton type="submit" sx={{ p: '10px' }} aria-label="search" onClick={(e)=>{e.preventDefault();this.Buscar(document.getElementById("Buscador").value)}}>
+                    <InputBase  id='Buscador' sx={{ ml: 1, flex: 1 }} placeholder="Buscar Lugar" onKeyDown={(evento)=>{var busqueda=document.getElementById("Buscador").value;this.EnterKey(evento,busqueda)}} />
+                    <IconButton type="submit" sx={{ p: '10px' }} aria-label="search" onClick={(e)=>{e.preventDefault();this.SearchPlaces(document.getElementById("Buscador").value)}}>
                       <SearchIcon />
                     </IconButton>
                   </Paper> 
                 </Grid >
+                {/*Form Search */}
 
 
                 {/* Buequeda section ,loader,error  */}
@@ -235,7 +243,7 @@ class App extends Component{
                       </Grid>                      
                       
                       <Grid container item xs={4} sm='auto' md={3} lg='auto' flex={true} marginX={{xs:'auto',sm:'8px'}} marginY={{xs:'10px',sm:'0px'}}  alignItems='flex-end'> 
-                        <Button fullWidth onClick={()=>{this.CalcularViaje(this.state.ViajeMetodo)}} variant="text">Calcular</Button>
+                        <Button fullWidth onClick={()=>{this.CalculateTrip(this.state.ViajeMetodo)}} variant="text">Calcular</Button>
                       </Grid>
                 </Grid >
                 :false}
@@ -270,21 +278,22 @@ class App extends Component{
             </Grid>
   
           </Grid>
+        </Grid>
+        {/*Map y form section */}
+
+        {/*items section */}
+        <Grid flex justifyContent='center' alignItems='center'  gap={5} paddingY={5} container >
+
+          {this.state.Busqueda && this.state.Busqueda !== 'Loading' && this.state.Busqueda !== 'Failed' && this.state.Busqueda.length > 0  ? this.state.Busqueda.map((obj,key)=>{
+            return(
+              <Grid item md={12} container justifyContent='center' alignItems='center' key={key}>
+                <ItemBusqueda SearchPlaces={this.SearchPlaces}  SearchPlacesNearby={this.SearchPlacesNearby} SearchDetails={this.Details} >{obj}</ItemBusqueda>
+              </Grid>
+            )
+          }):false}
 
         </Grid>
-
-      <Grid flex justifyContent='center' alignItems='center'  gap={5} paddingY={5} container >
-
-        {this.state.Busqueda && this.state.Busqueda !== 'Loading' && this.state.Busqueda !== 'Failed' && this.state.Busqueda.length > 0  ? this.state.Busqueda.map((obj,key)=>{
-          return(
-            <Grid item md={12} container justifyContent='center' alignItems='center' key={key}>
-              <ItemBusqueda BuscarLugaresCercanos={this.BuscarLugaresCercanos} BuscarDetalles={this.Detalles} >{obj}</ItemBusqueda>
-            </Grid>
-          )
-        }):false}
-
-      </Grid>
-
+        {/*items section */}
 
       </Grid>
 
